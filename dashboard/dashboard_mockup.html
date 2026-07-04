@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StreamCore — Revenue Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f6f9;
+    --panel:#ffffff;
+    --ink:#1c2530;
+    --sub:#6b7684;
+    --border:#e3e7ed;
+    --blue:#2f5fd6;
+    --blue-light:#eaf0fd;
+    --green:#1f9d55;
+    --red:#d9432f;
+    --amber:#e0913a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    color:var(--ink);
+  }
+  .topbar{
+    background:#101826;
+    color:#fff;
+    padding:14px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar .brand{
+    font-weight:700;
+    font-size:16px;
+    letter-spacing:0.3px;
+  }
+  .topbar .brand span{color:#7ea2ff;}
+  .topbar .meta{font-size:12px; color:#a9b3c4;}
+  .wrap{max-width:1320px; margin:0 auto; padding:20px 24px 48px;}
+
+  .filters{
+    display:flex; gap:10px; margin:18px 0 20px; flex-wrap:wrap;
+  }
+  .filters .chip{
+    background:var(--panel); border:1px solid var(--border); border-radius:6px;
+    padding:6px 14px; font-size:12.5px; color:var(--sub); display:flex; align-items:center; gap:6px;
+  }
+  .filters .chip b{color:var(--ink); font-weight:600;}
+
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .kpi{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 18px;
+  }
+  .kpi .label{font-size:12px; color:var(--sub); text-transform:uppercase; letter-spacing:0.4px;}
+  .kpi .value{font-size:26px; font-weight:700; margin-top:6px;}
+  .kpi .delta{font-size:12.5px; margin-top:4px; font-weight:600;}
+  .kpi .delta.up{color:var(--green);}
+  .kpi .delta.down{color:var(--red);}
+  .kpi .delta.warn{color:var(--amber);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 18px 10px;
+  }
+  .panel h3{
+    margin:0 0 2px; font-size:14px; font-weight:700;
+  }
+  .panel .sub{font-size:12px; color:var(--sub); margin-bottom:10px;}
+  .panel canvas{max-height:260px;}
+
+  .row3{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:12.8px;}
+  th{
+    text-align:left; color:var(--sub); font-weight:600; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.3px; padding:6px 4px;
+    border-bottom:1px solid var(--border);
+  }
+  td{padding:7px 4px; border-bottom:1px solid #f0f2f5;}
+  .tag{
+    display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600;
+  }
+  .tag.consumer{background:#eaf0fd; color:var(--blue);}
+  .tag.smb{background:#fdf1e3; color:var(--amber);}
+  .tag.enterprise{background:#e7f6ec; color:var(--green);}
+
+  .alert-banner{
+    background:#fff6ec; border:1px solid #f3d9ae; color:#8a5a12;
+    border-radius:8px; padding:10px 16px; font-size:13px; margin-bottom:16px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .alert-banner b{color:#6e4409;}
+
+  .footer-note{
+    margin-top:24px; font-size:11.5px; color:var(--sub); text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">STREAM<span>CORE</span> · Revenue Analytics</div>
+  <div class="meta">Data through Dec 2025 · Mockup for Tableau build · Currency: USD</div>
+</div>
+
+<div class="wrap">
+
+  <div class="filters">
+    <div class="chip">Period: <b>Jan 2023 – Dec 2025</b></div>
+    <div class="chip">Segment: <b>All (Consumer / SMB / Enterprise)</b></div>
+    <div class="chip">Plan: <b>All Plans</b></div>
+    <div class="chip">Region: <b>All Countries</b></div>
+  </div>
+
+  <div class="alert-banner">
+    <span><b>Note:</b> MRR growth slowed from 4.2% avg (H1 2025) to 2.2% avg (H2 2025), driven by a churn increase from 3.8% to 4.4%/mo. See Churn panel →</span>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="label">MRR</div>
+      <div class="value">$773.2K</div>
+      <div class="delta up">^ 2.9% vs last month</div>
+    </div>
+    <div class="kpi">
+      <div class="label">ARR</div>
+      <div class="value">$9.28M</div>
+      <div class="delta up">^ 34.9% YoY</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Active Customers</div>
+      <div class="value">60,069</div>
+      <div class="delta up">^ 2.8% vs last month</div>
+    </div>
+    <div class="kpi">
+      <div class="label">ARPU</div>
+      <div class="value">$12.87</div>
+      <div class="delta up">^ 0.2% vs last month</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Logo Churn</div>
+      <div class="value">4.23%</div>
+      <div class="delta warn">^ 0.5pp vs H1 avg</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>MRR Trend</h3>
+      <div class="sub">Monthly Recurring Revenue, Jan 2023 – Dec 2025</div>
+      <canvas id="mrrTrend"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Revenue by Plan</h3>
+      <div class="sub">Current month mix</div>
+      <canvas id="byPlan"></canvas>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="panel">
+      <h3>Revenue by Country</h3>
+      <div class="sub">Top 10 markets, current month</div>
+      <canvas id="byCountry"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Active Customers Trend</h3>
+      <div class="sub">Total active subscriptions</div>
+      <canvas id="custTrend"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Top Customers</h3>
+      <div class="sub">By lifetime revenue</div>
+      <table>
+        <thead><tr><th>ID</th><th>Segment</th><th>Plan</th><th>Country</th><th style="text-align:right">LTR</th></tr></thead>
+        <tbody id="topCustBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Mockup built from synthetic StreamCore dataset (106K customers, 36 months) · Layout designed for 1:1 rebuild in Tableau / Power BI · Charts: Chart.js placeholder for wireframing purposes
+  </div>
+
+</div>
+
+<script>
+const data = {"months": ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12"], "mrr": [24090.0, 43153.0, 63262.0, 82198.0, 100156.0, 117415.0, 134223.0, 151888.0, 172567.0, 194398.0, 219866.0, 248717.0, 271820.0, 290036.0, 310097.0, 329638.0, 349301.0, 367804.0, 386172.0, 407570.0, 433125.0, 460214.0, 491634.0, 530323.0, 560763.0, 582473.0, 607655.0, 632393.0, 656931.0, 679115.0, 694017.0, 704610.0, 718144.0, 732964.0, 751256.0, 773166.0], "active": [2070, 3692, 5369, 6956, 8463, 9855, 11252, 12689, 14376, 16147, 18230, 20612, 22464, 23839, 25422, 26937, 28469, 29947, 31357, 32955, 34959, 37035, 39546, 42511, 44858, 46485, 48327, 50186, 52055, 53734, 54699, 55266, 56153, 57165, 58441, 60069], "by_plan": [{"plan": "Standard", "mrr": 267558.0}, {"plan": "Premium", "mrr": 224374.0}, {"plan": "Basic", "mrr": 161144.0}, {"plan": "Family", "mrr": 120091.0}], "by_country": [{"country": "United States", "mrr": 314717.0}, {"country": "United Kingdom", "mrr": 100710.0}, {"country": "Germany", "mrr": 79250.0}, {"country": "Canada", "mrr": 72384.0}, {"country": "France", "mrr": 52001.0}, {"country": "Australia", "mrr": 43101.0}, {"country": "Brazil", "mrr": 39672.0}, {"country": "India", "mrr": 29979.0}, {"country": "Netherlands", "mrr": 25272.0}, {"country": "Mexico", "mrr": 16080.0}], "top_cust": [{"customer_id": 100022, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100174, "segment": "SMB", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100434, "segment": "SMB", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100460, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100577, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100664, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100669, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}, {"customer_id": 100729, "segment": "Consumer", "country": "United States", "initial_plan": "Family", "ltr": 1008.0}]};
+
+Chart.defaults.font.family = "'Segoe UI', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = "#6b7684";
+
+new Chart(document.getElementById('mrrTrend'), {
+  type: 'line',
+  data: {
+    labels: data.months,
+    datasets: [{
+      label: 'MRR ($)',
+      data: data.mrr,
+      borderColor: '#2f5fd6',
+      backgroundColor: 'rgba(47,95,214,0.08)',
+      fill: true,
+      tension: 0.25,
+      pointRadius: 0,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: { legend: { display:false } },
+    scales: {
+      x: { ticks: { maxTicksLimit: 8 }, grid: { display:false } },
+      y: { ticks: { callback: v => '$'+(v/1000)+'K' }, grid: { color:'#f0f2f5' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('custTrend'), {
+  type: 'line',
+  data: {
+    labels: data.months,
+    datasets: [{
+      label: 'Active Customers',
+      data: data.active,
+      borderColor: '#1f9d55',
+      backgroundColor: 'rgba(31,157,85,0.08)',
+      fill: true,
+      tension: 0.25,
+      pointRadius: 0,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: { legend: { display:false } },
+    scales: {
+      x: { ticks: { maxTicksLimit: 6 }, grid: { display:false } },
+      y: { grid: { color:'#f0f2f5' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('byPlan'), {
+  type: 'doughnut',
+  data: {
+    labels: data.by_plan.map(d=>d.plan),
+    datasets: [{
+      data: data.by_plan.map(d=>d.mrr),
+      backgroundColor: ['#2f5fd6', '#5b8def', '#9dbcf5', '#c9dafa'],
+      borderWidth: 2,
+      borderColor:'#fff'
+    }]
+  },
+  options: {
+    plugins: { legend: { position:'bottom', labels:{boxWidth:10, padding:12} } },
+    cutout: '62%'
+  }
+});
+
+new Chart(document.getElementById('byCountry'), {
+  type: 'bar',
+  data: {
+    labels: data.by_country.map(d=>d.country),
+    datasets: [{
+      data: data.by_country.map(d=>d.mrr),
+      backgroundColor: '#2f5fd6',
+      borderRadius: 3,
+      barThickness: 12
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display:false } },
+    scales: {
+      x: { ticks: { callback: v => '$'+(v/1000)+'K' }, grid: { color:'#f0f2f5' } },
+      y: { grid: { display:false } }
+    }
+  }
+});
+
+const tbody = document.getElementById('topCustBody');
+data.top_cust.forEach(c => {
+  const tr = document.createElement('tr');
+  const segClass = c.segment.toLowerCase();
+  tr.innerHTML = `<td>#${c.customer_id}</td>
+    <td><span class="tag ${segClass}">${c.segment}</span></td>
+    <td>${c.initial_plan}</td>
+    <td>${c.country}</td>
+    <td style="text-align:right; font-weight:600;">$${c.ltr.toLocaleString()}</td>`;
+  tbody.appendChild(tr);
+});
+</script>
+
+</body>
+</html>
